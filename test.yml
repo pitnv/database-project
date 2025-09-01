@@ -1,0 +1,15 @@
+stages:
+  - test
+
+lint-sql:
+  stage: test
+  image: postgres:15-alpine
+  script:
+    - |
+      for sql_file in scripts/01_ddl/*.sql scripts/02_dml/*.sql scripts/03_queries/*.sql; do
+        echo "Linting and checking syntax of $sql_file"
+        # Пытаемся проверить синтаксис, передавая скрипт в psql
+        psql -v ON_ERROR_STOP=1 -q -d "postgres" -f "$sql_file" && echo "OK: $sql_file"
+      done
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
